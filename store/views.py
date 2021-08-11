@@ -63,8 +63,7 @@ class ProductsItemView(GenericAPIView):
 
     def put(self, request, pk):
         product = get_object_or_404(Product.objects.filter(pk=pk))
-        serializer = ProductItemSerializer(instance=product, data=request.data)
-
+        serializer = ProductItemSerializer(instance=product, data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
