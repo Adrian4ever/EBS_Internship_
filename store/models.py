@@ -5,7 +5,7 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     price = models.FloatField()
     description = models.TextField()
-    sku = models.CharField(max_length=80)
+    sku = models.BigIntegerField(unique=True)
     date = models.DateField(auto_now_add=True)
 
 

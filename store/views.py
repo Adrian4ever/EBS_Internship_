@@ -1,10 +1,8 @@
-from django.http import HttpResponse, Http404
 from rest_framework import status
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.utils import json
 
 from store.models import Product, Image
 from store.serializers import ProductsSerializer, ImageSerializer, ProductItemSerializer
@@ -20,13 +18,8 @@ class ImageViewSet(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         print(serializer.validated_data)
         file = request.data['name']
-        # image = Image.objects.create(
-        #     name=serializer.validated_data['name'],
-        #     image=file,
-        #     product=serializer.validated_data['product']
-        # )
         serializer.save()
-        return HttpResponse(json.dumps({'message': "Uploaded"}), status=200)
+        return Response(serializer.data)
 
 
 class ProductsListView(GenericAPIView):
@@ -47,13 +40,8 @@ class ProductsListView(GenericAPIView):
     def post(self, request):
         serializer = ProductsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        product = Product.objects.create(
-            name=request.data['name'],
-            price=request.data['price'],
-            description=request.data['description'],
-            sku=request.data['sku'],
-        )
-        return Response(ProductsSerializer(product).data)
+        serializer.save()
+        return Response(serializer.data)
 
 
 class ProductsItemView(GenericAPIView):
@@ -65,7 +53,7 @@ class ProductsItemView(GenericAPIView):
     def get(self, request, pk):
         product = get_object_or_404(Product.objects.filter(pk=pk))
 
-        return Response(ProductItemSerializer(product).data)
+        return Response(ProductItemSerializer(product, context={'request': request}).data)
 
     def delete(self, request, pk):
         product = get_object_or_404(Product.objects.filter(pk=pk))
@@ -80,4 +68,4 @@ class ProductsItemView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response(ProductItemSerializer(product).data)
+        return Response(serializer.data)
